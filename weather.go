@@ -88,7 +88,6 @@ func (w *weatherInfo) GetCityName() string {
 	return w.City.Name
 }
 
-// 取得年数
 func (w *weatherInfo) GetDates() []string {
 	var dates []string
 	for _, l := range w.List {
