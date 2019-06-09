@@ -1,11 +1,11 @@
-package main
+package weather
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"math"
 	"net/http"
+	"time"
 )
 
 // 絶対零度 気温変換で使用する
@@ -56,15 +56,15 @@ func (w *weatherInfos) GetCityName() string {
 	return w.City.Name
 }
 
-func (w *weatherInfos) GetIcon() []string {
-	var icon []string
+func (w *weatherInfos) GetIcons() []string {
+	var icons []string
 	for _, l := range w.List {
-		for _, w := range l.Weather {
-			icon = append(icon, w.Icon)
+		for _, lw := range l.Weather {
+			icons = append(icons, lw.Icon)
 		}
 	}
 
-	return icon
+	return icons
 }
 
 func (w *weatherInfos) GetDates() []string {
@@ -95,14 +95,18 @@ func (w *weatherInfos) GetTemps() []int {
 	return maxTemps
 }
 
-func main() {
-	weather := New()
-	fmt.Println(weather.GetCityName())
-	for i, date := range weather.GetDates() {
-		fmt.Println("date: " + (string)(date))
-		fmt.Println("天気: " + (string)(weather.GetDescriptions()[i]))
-		fmt.Println(weather.GetTemps()[i])
+func (w *weatherInfos) GetInfoFromDate(target time.Time) *weatherInfos {
+	const (
+		layoutWeatherDate = "2006-01-02 15:04:05" // => YYYY-MM-DD hh:dd:ss
+		layout            = "2006-01-02"          // => YYYY-MM-DD
+	)
+	var weatherInfosToday weatherInfos
+	weatherInfosToday.City.Name = w.City.Name
 
+	for i, date := range w.GetDates() {
+		if t, _ := time.Parse(layoutWeatherDate, date); target.Format(layout) == t.Format(layout) {
+			weatherInfosToday.List = append(weatherInfosToday.List, w.List[i])
+		}
 	}
-
+	return &weatherInfosToday
 }
