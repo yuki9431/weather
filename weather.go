@@ -67,12 +67,15 @@ func (w *weatherInfos) GetIcons() []string {
 	return icons
 }
 
-func (w *weatherInfos) GetDates() []string {
-	var dates []string
+func (w *weatherInfos) GetDates() []time.Time {
+	var times []time.Time
+
 	for _, l := range w.List {
-		dates = append(dates, l.DtTxt)
+		date, _ := time.Parse("2006-01-02 15:04:05", l.DtTxt)
+		times = append(times, date)
 	}
-	return dates
+
+	return times
 }
 
 func (w *weatherInfos) GetDescriptions() []string {
@@ -95,6 +98,33 @@ func (w *weatherInfos) GetTemps() []int {
 	return maxTemps
 }
 
+func (w *weatherInfos) ConvertIconToWord(icon string) string {
+	var word string
+
+	switch icon {
+	case "01d", "01n":
+		word = "快晴"
+	case "02d", "02n":
+		word = "晴れ"
+	case "03d", "04d", "03n", "04n":
+		word = "曇り"
+	case "09d", "09n":
+		word = "小雨"
+	case "10d", "10n":
+		word = "雨"
+	case "11d", "11n":
+		word = "雷雨"
+	case "13d", "13n":
+		word = "雪"
+	case "50d", "50n":
+		word = "霧"
+	default:
+		word = "該当情報無し"
+
+	}
+	return word
+}
+
 func (w *weatherInfos) GetInfoFromDate(target time.Time) *weatherInfos {
 	const (
 		layoutWeatherDate = "2006-01-02 15:04:05" // => YYYY-MM-DD hh:dd:ss
@@ -104,7 +134,7 @@ func (w *weatherInfos) GetInfoFromDate(target time.Time) *weatherInfos {
 	weatherInfosToday.City.Name = w.City.Name
 
 	for i, date := range w.GetDates() {
-		if t, _ := time.Parse(layoutWeatherDate, date); target.Format(layout) == t.Format(layout) {
+		if t := date; target.Format(layout) == t.Format(layout) {
 			weatherInfosToday.List = append(weatherInfosToday.List, w.List[i])
 		}
 	}
