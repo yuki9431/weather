@@ -28,9 +28,7 @@ type weatherInfos struct {
 }
 
 // TODO 都市を選べるようにする
-func New() *weatherInfos {
-	cityId := "1850147" // Tokyo
-	appid := "63ef79e871474934c1bd707239475660"
+func New(cityId string, appid string) *weatherInfos {
 	apiUrl := "http://api.openweathermap.org/data/2.5/forecast?id=" +
 		cityId +
 		"&" +
