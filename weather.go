@@ -101,23 +101,23 @@ func (w *weatherInfos) ConvertIconToWord(icon string) string {
 
 	switch icon {
 	case "01d", "01n":
-		word = "快晴"
+		word = "☀️"
 	case "02d", "02n":
-		word = "晴れ"
+		word = "🌤"
 	case "03d", "04d", "03n", "04n":
-		word = "曇り"
+		word = "☁️"
 	case "09d", "09n":
-		word = "小雨"
+		word = "☂️"
 	case "10d", "10n":
-		word = "雨"
+		word = "☔️"
 	case "11d", "11n":
-		word = "雷雨"
+		word = "⚡️"
 	case "13d", "13n":
-		word = "雪"
+		word = "☃️"
 	case "50d", "50n":
-		word = "霧"
+		word = "💨"
 	default:
-		word = "該当情報無し"
+		word = "😇" // 不正な値
 
 	}
 	return word
