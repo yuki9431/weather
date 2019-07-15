@@ -2,7 +2,7 @@ package weather
 
 import (
 	"encoding/json"
-	"log"
+	"errors"
 	"math"
 	"net/http"
 	"time"
@@ -10,6 +10,12 @@ import (
 
 // 絶対零度 気温変換で使用する
 const absoluteTmp = -273.15
+
+type weather struct {
+	cityId string
+	appid  string
+	infos  weatherInfos
+}
 
 type weatherInfos struct {
 	List []struct {
@@ -27,8 +33,12 @@ type weatherInfos struct {
 	} `json:"city"`
 }
 
-// TODO 都市を選べるようにする
-func New(cityId string, appid string) *weatherInfos {
+func New(cityId string, appid string) (w *weather, err error) {
+	*w = weather{
+		cityId: cityId,
+		appid:  appid,
+	}
+
 	apiUrl := "http://api.openweathermap.org/data/2.5/forecast?id=" +
 		cityId +
 		"&" +
@@ -37,26 +47,25 @@ func New(cityId string, appid string) *weatherInfos {
 
 	resp, err := http.Get(apiUrl)
 	if err != nil {
-		log.Fatal("天気情報の取得に失敗しました")
+		err = errors.New("天気情報の取得に失敗しました")
+		return
 	}
-
 	defer resp.Body.Close()
 
 	// jsonデコード
-	var weather weatherInfos
-	if err := json.NewDecoder(resp.Body).Decode(&weather); err != nil {
-		log.Fatal("jsonデコードに失敗しました")
+	if err = json.NewDecoder(resp.Body).Decode(&w.infos); err != nil {
+		err = errors.New("jsonデコードに失敗しました")
 	}
-	return &weather
+	return
 }
 
-func (w *weatherInfos) GetCityName() string {
-	return w.City.Name
+func (w *weather) GetCityName() string {
+	return w.infos.City.Name
 }
 
-func (w *weatherInfos) GetIcons() []string {
+func (w *weather) GetIcons() []string {
 	var icons []string
-	for _, l := range w.List {
+	for _, l := range w.infos.List {
 		for _, lw := range l.Weather {
 			icons = append(icons, lw.Icon)
 		}
@@ -65,10 +74,10 @@ func (w *weatherInfos) GetIcons() []string {
 	return icons
 }
 
-func (w *weatherInfos) GetDates() []time.Time {
+func (w *weather) GetDates() []time.Time {
 	var times []time.Time
 
-	for _, l := range w.List {
+	for _, l := range w.infos.List {
 		date, _ := time.Parse("2006-01-02 15:04:05", l.DtTxt)
 		times = append(times, date)
 	}
@@ -76,9 +85,9 @@ func (w *weatherInfos) GetDates() []time.Time {
 	return times
 }
 
-func (w *weatherInfos) GetDescriptions() []string {
+func (w *weather) GetDescriptions() []string {
 	var descriptions []string
-	for _, l := range w.List {
+	for _, l := range w.infos.List {
 		for _, w := range l.Weather {
 			descriptions = append(descriptions, w.Description)
 		}
@@ -87,16 +96,16 @@ func (w *weatherInfos) GetDescriptions() []string {
 	return descriptions
 }
 
-func (w *weatherInfos) GetTemps() []int {
+func (w *weather) GetTemps() []int {
 	var maxTemps []int
-	for _, l := range w.List {
+	for _, l := range w.infos.List {
 		maxTemps = append(maxTemps, (int)(math.Round(l.Main.Temp+absoluteTmp)))
 	}
 
 	return maxTemps
 }
 
-func (w *weatherInfos) ConvertIconToWord(icon string) string {
+func (w *weather) ConvertIconToWord(icon string) string {
 	var word string
 
 	switch icon {
@@ -123,17 +132,17 @@ func (w *weatherInfos) ConvertIconToWord(icon string) string {
 	return word
 }
 
-func (w *weatherInfos) GetInfoFromDate(target time.Time) *weatherInfos {
+func (w *weather) GetInfoFromDate(target time.Time) *weatherInfos {
 	const (
 		layoutWeatherDate = "2006-01-02 15:04:05" // => YYYY-MM-DD hh:dd:ss
 		layout            = "2006-01-02"          // => YYYY-MM-DD
 	)
 	var weatherInfosToday weatherInfos
-	weatherInfosToday.City.Name = w.City.Name
+	weatherInfosToday.City.Name = w.infos.City.Name
 
 	for i, date := range w.GetDates() {
 		if t := date; target.Format(layout) == t.Format(layout) {
-			weatherInfosToday.List = append(weatherInfosToday.List, w.List[i])
+			weatherInfosToday.List = append(weatherInfosToday.List, w.infos.List[i])
 		}
 	}
 	return &weatherInfosToday
