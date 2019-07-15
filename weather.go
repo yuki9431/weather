@@ -34,11 +34,6 @@ type weatherInfos struct {
 }
 
 func New(cityId string, appid string) (w *weather, err error) {
-	w = &weather{
-		cityId: cityId,
-		appid:  appid,
-	}
-
 	apiUrl := "http://api.openweathermap.org/data/2.5/forecast?id=" +
 		cityId +
 		"&" +
@@ -53,9 +48,17 @@ func New(cityId string, appid string) (w *weather, err error) {
 	defer resp.Body.Close()
 
 	// jsonデコード
-	if err = json.NewDecoder(resp.Body).Decode(&w.Infos); err != nil {
+	var wI weatherInfos
+	if err = json.NewDecoder(resp.Body).Decode(&wI); err != nil {
 		err = errors.New("jsonデコードに失敗しました")
 	}
+
+	w = &weather{
+		cityId: cityId,
+		appid:  appid,
+		Infos:  wI,
+	}
+
 	return
 }
 
