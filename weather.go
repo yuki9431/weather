@@ -53,19 +53,19 @@ func New(cityId string, appid string) (w *weather, err error) {
 	defer resp.Body.Close()
 
 	// jsonデコード
-	if err = json.NewDecoder(resp.Body).Decode(&w.infos); err != nil {
+	if err = json.NewDecoder(resp.Body).Decode(&w.Infos); err != nil {
 		err = errors.New("jsonデコードに失敗しました")
 	}
 	return
 }
 
 func (w *weather) GetCityName() string {
-	return w.infos.City.Name
+	return w.Infos.City.Name
 }
 
 func (w *weather) GetIcons() []string {
 	var icons []string
-	for _, l := range w.infos.List {
+	for _, l := range w.Infos.List {
 		for _, lw := range l.Weather {
 			icons = append(icons, lw.Icon)
 		}
@@ -77,7 +77,7 @@ func (w *weather) GetIcons() []string {
 func (w *weather) GetDates() []time.Time {
 	var times []time.Time
 
-	for _, l := range w.infos.List {
+	for _, l := range w.Infos.List {
 		date, _ := time.Parse("2006-01-02 15:04:05", l.DtTxt)
 		times = append(times, date)
 	}
@@ -87,7 +87,7 @@ func (w *weather) GetDates() []time.Time {
 
 func (w *weather) GetDescriptions() []string {
 	var descriptions []string
-	for _, l := range w.infos.List {
+	for _, l := range w.Infos.List {
 		for _, w := range l.Weather {
 			descriptions = append(descriptions, w.Description)
 		}
@@ -98,7 +98,7 @@ func (w *weather) GetDescriptions() []string {
 
 func (w *weather) GetTemps() []int {
 	var maxTemps []int
-	for _, l := range w.infos.List {
+	for _, l := range w.Infos.List {
 		maxTemps = append(maxTemps, (int)(math.Round(l.Main.Temp+absoluteTmp)))
 	}
 
@@ -138,11 +138,11 @@ func (w *weather) GetInfoFromDate(target time.Time) *weatherInfos {
 		layout            = "2006-01-02"          // => YYYY-MM-DD
 	)
 	var weatherInfosToday weatherInfos
-	weatherInfosToday.City.Name = w.infos.City.Name
+	weatherInfosToday.City.Name = w.Infos.City.Name
 
 	for i, date := range w.GetDates() {
 		if t := date; target.Format(layout) == t.Format(layout) {
-			weatherInfosToday.List = append(weatherInfosToday.List, w.infos.List[i])
+			weatherInfosToday.List = append(weatherInfosToday.List, w.Infos.List[i])
 		}
 	}
 	return &weatherInfosToday
