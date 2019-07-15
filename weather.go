@@ -34,7 +34,7 @@ type weatherInfos struct {
 }
 
 func New(cityId string, appid string) (w *weather, err error) {
-	*w = weather{
+	w = &weather{
 		cityId: cityId,
 		appid:  appid,
 	}
