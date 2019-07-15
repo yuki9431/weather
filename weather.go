@@ -14,7 +14,7 @@ const absoluteTmp = -273.15
 type weather struct {
 	cityId string
 	appid  string
-	infos  weatherInfos
+	Infos  weatherInfos
 }
 
 type weatherInfos struct {
