@@ -12,9 +12,10 @@ import (
 const absoluteTmp = -273.15
 
 type weather struct {
-	cityId string
-	appid  string
-	Infos  weatherInfos
+	cityId   string
+	appid    string
+	timezone time.Location
+	Infos    weatherInfos
 }
 
 type weatherInfos struct {
@@ -60,6 +61,10 @@ func New(cityId string, appid string) (w *weather, err error) {
 	}
 
 	return
+}
+
+func (w *weather) SetTimezone(t time.Location) {
+	w.timezone = t
 }
 
 func (w *weather) GetCityName() string {
