@@ -26,12 +26,20 @@ go get github.com/yuki9431/weather
 ## Configuration
 ```go:main.go
 import (
+	"fmt"
+
 	"github.com/yuki9431/weather"
 )
 
 func main() {
-	w := weather.New("<appid>")
-	...
+	w, err := weather.New("<cityid>", "<appid>")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	for i, date := range w.GetDates() {
+		fmt.Println(date.String() + " : " + w.GetDescriptions()[i])
+	}
 }
 ```
 
@@ -53,7 +61,7 @@ New()で取得した天気情報に含まれる都市名を取得します。
 (TODO 現在は東京で固定しているが、可変にしたい)
 
 ### GetIcons()
-New()で取得した天気情報に含まれる天気アイコンを取得します。  
+New()で取得した天気情報に含まれる天気アイコンを表す文字列を取得します。  
 5日分*3時間毎の天気アイコンを[]string型で返します。
 
 ### GetDates()
@@ -70,8 +78,8 @@ New()で取得した天気情報に含まれる気温を取得します。
 5日分*3時間毎の気温を[]int型で返します。
 
 ### ConvertIconToWord(icon string)
-天気アイコンを日本語に変換します。  
-(01d ⇒ 快晴)
+天気アイコンを絵文字変換します。  
+(01d ⇒ ☀️)
 
 ### GetInfoFromDate(target time.Time)
 日付を指定し、1日分の天気情報を取得できます。  
