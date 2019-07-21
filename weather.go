@@ -90,7 +90,11 @@ func (w *weather) GetDates() []time.Time {
 
 	for _, l := range w.Infos.List {
 		date, _ := time.Parse("2006-01-02 15:04:05", l.DtTxt)
-		times = append(times, date.In(w.timezone))
+		if w.timezone != nil {
+			times = append(times, date.In(w.timezone))
+		} else {
+			times = append(times, date)
+		}
 	}
 
 	return times
