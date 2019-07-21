@@ -14,7 +14,7 @@ const absoluteTmp = -273.15
 type weather struct {
 	cityId   string
 	appid    string
-	timezone time.Location
+	timezone *time.Location
 	Infos    weatherInfos
 }
 
@@ -63,7 +63,7 @@ func New(cityId string, appid string) (w *weather, err error) {
 	return
 }
 
-func (w *weather) SetTimezone(t time.Location) {
+func (w *weather) SetTimezone(t *time.Location) {
 	w.timezone = t
 }
 
@@ -87,7 +87,7 @@ func (w *weather) GetDates() []time.Time {
 
 	for _, l := range w.Infos.List {
 		date, _ := time.Parse("2006-01-02 15:04:05", l.DtTxt)
-		times = append(times, date.In(&w.timezone))
+		times = append(times, date.In(w.timezone))
 	}
 
 	return times
