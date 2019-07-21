@@ -54,10 +54,13 @@ func New(cityId string, appid string) (w *weather, err error) {
 		err = errors.New("jsonデコードに失敗しました")
 	}
 
+	timezone := time.FixedZone("JST", 9*60*60)
+
 	w = &weather{
-		cityId: cityId,
-		appid:  appid,
-		Infos:  wI,
+		cityId:   cityId,
+		appid:    appid,
+		Infos:    wI,
+		timezone: timezone,
 	}
 
 	return
