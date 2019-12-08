@@ -148,15 +148,13 @@ func (w *weather) ConvertIconToWord(icon string) string {
 }
 
 func (w *weather) GetInfoFromDate(target time.Time) *weatherInfos {
-	const (
-		layoutWeatherDate = "2006-01-02 15:04:05" // => YYYY-MM-DD hh:dd:ss
-		layout            = "2006-01-02"          // => YYYY-MM-DD
-	)
+	const layout = "2006-01-02" // => YYYY-MM-DD
+
 	var weatherInfosToday weatherInfos
 	weatherInfosToday.City.Name = w.Infos.City.Name
 
 	for i, date := range w.GetDates() {
-		if t := date; target.Format(layout) == t.Format(layout) {
+		if target.Format(layout) == date.Format(layout) {
 			weatherInfosToday.List = append(weatherInfosToday.List, w.Infos.List[i])
 		}
 	}
